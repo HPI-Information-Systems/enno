@@ -1,0 +1,20 @@
+@tc-fontsize: 14pt;
+
+*, body, html {
+  margin: 0;
+  padding: 0;
+}
+
+.grid(@grid-fg, @grid-bg, @size) {
+  background-color: @grid-bg;
+  background-image: linear-gradient(@grid-fg 1px, transparent 1px),
+  linear-gradient(90deg, @grid-fg 1px, transparent 1px);
+  background-size: @size @size, @size @size;
+}
+
+.text-container {
+  .grid(rgba(0, 0, 0, .1), transparent, @tc-fontsize);
+  font-size: @tc-fontsize;
+  font-family: monospace;
+}
+

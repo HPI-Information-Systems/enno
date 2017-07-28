@@ -10,7 +10,9 @@ wrappers = Blueprint('wrappers', __name__)
 
 
 def json_response(obj):
-    return Response(json.dumps(obj), mimetype='application/json')
+    if type(obj) is dict:
+        obj = json.dumps(obj)
+    return Response(str(obj), mimetype='application/json')
 
 
 @wrappers.route('/sources')
@@ -30,13 +32,14 @@ def list_files(source):
     return json_response(adapters[opts['wrapper']].get_listing(opts['options']))
 
 
-@wrappers.route('/sample/<source>/<sample>')
+@wrappers.route('/sample/<source>/<path:sample>')
 def get_sample(source, sample):
     return json_response(adapters[config['datasources'][source]['wrapper']]
                          .get_sample(sample, config['datasources'][source]['options']))
 
 
-@wrappers.route('/save/<source>/<sample>/<payload>')
+@wrappers.route('/save/<source>/<path:sample>/<payload>', methods=['POST'])
 def save_sample(source, sample, payload):
+    # http://flask.pocoo.org/snippets/50/
     return ''
 

@@ -31,7 +31,9 @@ class Annotation:
 
     @meta.setter
     def meta(self, obj):
-        self.anno['meta'] = obj
+        tmp = self.meta
+        tmp.update(obj)
+        self.anno['meta'] = tmp
 
     @property
     def wrapper(self):
@@ -96,6 +98,7 @@ class Annotation:
         anno = Annotation()
         anno.text = obj['text']
         anno.denotations = obj['denotations']
+        anno.meta = obj.get('meta', {})
         return anno
 
     @staticmethod

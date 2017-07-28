@@ -3,6 +3,10 @@ from email import parser as ep
 from enno.utils.annotation import Annotation
 
 
+def __has_annotation(path):
+    return os.path.isfile(path + '.ann')
+
+
 def get_listing(options):
     path = options['path']
     ret = {
@@ -20,13 +24,18 @@ def get_listing(options):
             tmp = tmp['folders'][pp]
 
         for ff in f:
-            tmp['docs'].append(ff)
+            if ff.endswith('.txt'):
+                tmp['docs'].append({
+                    'name': ff,
+                    'has_annotation': __has_annotation(os.path.join(options['path'], p, ff)),
+                    'sample': p+'/'+ff
+                })
     return ret
 
 
 def get_sample(sample, options):
     path = os.path.join(options['path'], sample)
-    if os.path.isfile(path+'.ann'):
+    if __has_annotation(path):
         return Annotation.from_file(path + '.ann')
 
     f = open(path, 'r')

@@ -48,7 +48,7 @@ module.exports = function (grunt) {
         less: {
             all: {
                 files: {
-                    '<%= dist_target.cssmin %>': 'src/css/enno.less'
+                    '<%= dist_target.css %>': 'enno/src/css/enno.less'
                 }
             }
         },
