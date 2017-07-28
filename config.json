@@ -1,0 +1,88 @@
+{
+  "datasources": {
+    "enron": {
+      "wrapper": "enron",
+      "options": {
+        "path": "data/enron/",
+        "denotationTypes": [
+          "Header",
+          "Header/Person",
+          "Header/Person/From",
+          "Header/Person/To",
+          "Header/Person/From",
+          "Header/Person/Cc",
+          "Header/Person/Bcc",
+          "Header/Subject",
+          "Header/Sent",
+          "Header/Sent/Date",
+          "Header/Sent/Time",
+          "Body",
+          "Body/Intro",
+          "Body/Intro/Name",
+          "Body/Outro",
+          "Body/Outro/Name",
+          "Body/Attachments",
+          "Body/Attachments/Attachment",
+          "Body/Signature",
+          "Body/Signature/Name",
+          "Body/Signature/Mail",
+          "Body/Signature/Phone",
+          "Body/Signature/Fax",
+          "Body/Signature/Organisation",
+          "Body/Signature/Address",
+          "Body/Signature/Disclaimer"
+        ],
+        "relationTypes": {
+          "Alias": {
+            "type": "symmetric-transitive",
+            "from": [
+              "Header/Person",
+              "Header/Person/From",
+              "Header/Person/To",
+              "Header/Person/From",
+              "Header/Person/Cc",
+              "Header/Person/Bcc",
+              "Body/Intro/Name",
+              "Body/Outro/Name",
+              "Body/Signature/Name"
+            ],
+            "to": [
+              "Header/Person",
+              "Header/Person/From",
+              "Header/Person/To",
+              "Header/Person/From",
+              "Header/Person/Cc",
+              "Header/Person/Bcc",
+              "Body/Intro/Name",
+              "Body/Outro/Name",
+              "Body/Signature/Name"
+            ]
+          },
+          "ContactInfo": {
+            "type": "directed",
+            "from": [
+              "Body/Signature/Mail",
+              "Body/Signature/Phone",
+              "Body/Signature/Fax",
+              "Body/Signature/Address"
+            ],
+            "to": [
+              "Body/Signature/Organisation",
+              "Body/Signature/Name"
+            ]
+          },
+          "WorksFor": {
+            "type": "directed",
+            "from": [
+              "Body/Signature/Organisation"
+            ],
+            "to": [
+              "Body/Signature/Name"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+

@@ -1,0 +1,39 @@
+{
+  "name": "enno",
+  "version": "0.0.1",
+  "description": "Text annotator",
+  "main": "Gruntfile.js",
+  "dependencies": {
+    "grunt": "^1.0.1",
+    "grunt-cli": "^1.2.0",
+    "jsplumb": "^2.4.3"
+  },
+  "devDependencies": {
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-cssmin": "^2.2.0",
+    "grunt-contrib-less": "^1.4.1",
+    "grunt-contrib-uglify": "^3.0.1",
+    "grunt-open": "^0.2.3",
+    "grunt-text-replace": "^0.4.0",
+    "load-grunt-tasks": "^3.5.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TimRepke/enno.git"
+  },
+  "keywords": [
+    "annotation",
+    "text",
+    "nlp"
+  ],
+  "author": "Tim Repke",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TimRepke/enno/issues"
+  },
+  "homepage": "https://github.com/TimRepke/enno#readme"
+}

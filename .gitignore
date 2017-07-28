@@ -1,0 +1,9 @@
+.idea/**
+node_modules/**
+package-lock.json
+data/**
+!data/.gitkeep
+#!data/enron/**
+enno/dist/**
+!enno/dist/.gitkeep
+__pycache__
