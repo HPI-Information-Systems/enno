@@ -14,21 +14,22 @@ module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         dist_target: {
-            js: 'enno/dist/<%= pkg.name %>-<%= pkg.version %>.js',
-            jsmin: 'enno/dist/<%= pkg.name %>-<%= pkg.version %>.min.js',
-            css: 'enno/dist/<%= pkg.name %>-<%= pkg.version %>.css',
-            cssmin: 'enno/dist/<%= pkg.name %>-<%= pkg.version %>.min.css'
+            js: 'enno/static/<%= pkg.name %>-<%= pkg.version %>.js',
+            jsmin: 'enno/static/<%= pkg.name %>-<%= pkg.version %>.min.js',
+            css: 'enno/static/css/<%= pkg.name %>-<%= pkg.version %>.css',
+            cssmin: 'enno/static/css/<%= pkg.name %>-<%= pkg.version %>.min.css'
         },
         concat: {
             js: {
                 src: [
-                    'node_modules/jsplumb/dist/jsplumb.min.js',
+                    'node_modules/jsplumb/static/jsplumb.min.js',
                     'enno/src/js/**'
                 ],
                 dest: '<%= dist_target.js %>'
             },
             css: {
                 src: [
+                    'node_modules/font-awesome/css/font-awesome.css',
                     '<%= dist_target.css %>'
                 ],
                 dest: '<%= dist_target.css %>'
@@ -54,9 +55,9 @@ module.exports = function (grunt) {
         cssmin: {
             minify: {
                 expand: true,
-                cwd: 'enno/dist/',
+                cwd: 'enno/static/css/',
                 src: ['<%= pkg.name %>-<%= pkg.version %>.css'],
-                dest: 'enno/dist/',
+                dest: 'enno/static/css/',
                 rename: rename.ext(".min.css")
             }
         },
@@ -66,14 +67,20 @@ module.exports = function (grunt) {
                     expand: true,
                     cwd: 'enno/src/',
                     src: ['*.html'],
-                    dest: 'enno/dist/',
+                    dest: 'enno/static/',
+                    filter: 'isFile'
+                },{
+                    expand: true,
+                    cwd: 'node_modules/font-awesome/',
+                    src: ['fonts/**'],
+                    dest: 'enno/static/',
                     filter: 'isFile'
                 }]
             }
         },
         replace: {
             version: {
-                src: ['enno/dist/enno.html'],
+                src: ['enno/static/enno.html'],
                 overwrite: true,
                 replacements: [{
                     from: '{{version}}',

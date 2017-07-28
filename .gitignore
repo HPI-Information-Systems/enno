@@ -4,6 +4,6 @@ package-lock.json
 data/**
 !data/.gitkeep
 #!data/enron/**
-enno/dist/**
-!enno/dist/.gitkeep
+enno/static/**
+!enno/static/.gitkeep
 __pycache__
