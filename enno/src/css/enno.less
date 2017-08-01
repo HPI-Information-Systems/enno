@@ -1,20 +1,60 @@
-@tc-fontsize: 14pt;
+@tc-fontsize: 12pt;
+@tc-lineheight: 3em;
 
 *, body, html {
+  font-family:Verdana,Helvetica,sans-serif;
   margin: 0;
   padding: 0;
 }
 
-.grid(@grid-fg, @grid-bg, @size) {
+.grid(@grid-fg, @grid-bg, @width, @height) {
   background-color: @grid-bg;
   background-image: linear-gradient(@grid-fg 1px, transparent 1px),
   linear-gradient(90deg, @grid-fg 1px, transparent 1px);
-  background-size: @size @size, @size @size;
+  background-size: @height @height, @width @width;
+}
+
+.lines(@grid-fg, @grid-bg, @height) {
+  background-color: @grid-bg;
+  background-image: linear-gradient(@grid-fg 1px, transparent 1px);
+  background-size: @height @height;
+  background-position-y: -@tc-fontsize;
 }
 
 .text-container {
-  .grid(rgba(0, 0, 0, .1), transparent, @tc-fontsize);
+  //.grid(rgba(0, 0, 0, .1), transparent, 1ch, @tc-lineheight);
+  .lines(rgba(0,0,0,.1), transparent, @tc-lineheight);
   font-size: @tc-fontsize;
+  line-height: @tc-lineheight;
   font-family: monospace;
 }
 
+denotation {
+  background-color: rgba(100, 100, 215, 0.5);
+  border-color: rgba(100, 100, 215, 0.8);
+  border-style: solid;
+  border-width: 1px 0;
+}
+
+denotation .hovered {
+  border-color: #ff0000;
+  border-width: 2px;
+}
+
+span.special-char {
+  color: lightsteelblue;
+}
+denotation span.special-char {
+  color: beige;
+}
+
+#api-indicator {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  color: red;
+  font-weight: bold;
+  font-size: 10pt;
+  text-align: left;
+  width: 15ch;
+}

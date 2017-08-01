@@ -2,7 +2,7 @@
  * This module parses the url wih parameters with respective values for easy access.
  * Taken from https://github.com/TimRepke/registration-system/blob/2e442a56efca78b113d19eaa6804bcbf32d2e5c3/registration-system/view/js/api.js
  */
-module.exports = {
+var UrlComponents = {
     decomposed: null,
     getParams: function () {
         if (this.decomposed) return this.decomposed;

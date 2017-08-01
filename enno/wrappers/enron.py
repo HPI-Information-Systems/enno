@@ -1,4 +1,4 @@
-import os
+import os, json
 from email import parser as ep
 from enno.utils.annotation import Annotation
 
@@ -28,7 +28,7 @@ def get_listing(options):
                 tmp['docs'].append({
                     'name': ff,
                     'has_annotation': __has_annotation(os.path.join(options['path'], p, ff)),
-                    'sample': p+'/'+ff
+                    'sample': p + '/' + ff
                 })
     return ret
 
@@ -49,3 +49,16 @@ def get_sample(sample, options):
     anno.text = mail.get_payload()
 
     return anno
+
+
+def save_sample(sample, payload, options):
+    # TODO make this more fancy using the Annotation class
+    path = os.path.join(options['path'], sample) + '.ann'
+    with open(path, 'w') as f:
+        json.dump(payload, f)
+
+
+def save_annotation(sample, anno, options):
+    path = os.path.join(options['path'], sample) + '.ann'
+    with open(path, 'w') as f:
+        f.write(str(anno))

@@ -58,40 +58,55 @@ class Annotation:
     @denotations.setter
     def denotations(self, lst):
         for d in lst:
-            self.add_denotation(d['start'], d['end'], text=d.get('text', None),
+            self.upsert_denotation(d['start'], d['end'], text=d.get('text', None),
                                 typ=d.get('typ', None), id=d.get('id', None), meta=d.get('meta', None))
 
-    def add_denotation(self, start, end, text=None, typ=None, id=None, meta=None):
+    def upsert_denotation(self, start, end, text=None, typ=None, id=None, meta=None):
         lst = self.denotations
-        id = self.__next_id('E', id, 'denotations')
-        lst.append({
+
+        deno = {
             'id': id,
             'start': start,
             'end': end,
             'text': text,
             'typ': typ,
             'meta': meta
-        })
+        }
+
+        if text is None:
+            deno['text'] = self.text[start:end]
+
+        if id is not None and self.contains_id(id, 'denotations'):
+            i = self.get_index(id, lst)
+            lst[i].update(deno)
+        elif id is not None:
+            lst.append(deno)
+            self.ids['denotations'].append(deno['id'])
+            self.max['denotations'] = max([self.max['denotations'], int(deno['id'])])
+        else:
+            deno['id'] = self.max['denotations']+1
+            lst.append(deno)
+            self.ids['denotations'].append(deno['id'])
+            self.max['denotations'] += 1
+
         self.anno['denotations'] = lst
+        return deno
 
     def __ensure_index(self, lst):
         if len(self.anno.get(lst, [])) > 0 and len(self.ids[lst]) == 0:
             for l in self.anno.get(lst, []):
                 self.ids[lst].append(l['id'])
-                self.max[lst] = max([self.max[lst], int(re.findall('\d+', l['id'])[0])])
-
-    def __next_id(self, prefix, id, lst):
-        if id is None:
-            id = prefix + str(self.max[lst] + 1)
-            self.max[lst] += 1
-        elif self.contains_id(id, lst):
-            raise KeyError('ID "' + id + '" already exists in ' + lst)
-        self.ids[lst].append(id)
-        return id
+                self.max[lst] = max([self.max[lst], int(l['id'])])
 
     def contains_id(self, id, lst):
         self.__ensure_index(lst)
         return id in self.ids[lst]
+
+    def get_index(self, id, lst):
+        for i, d in enumerate(lst):
+            if d['id'] == id:
+                return i
+        return None
 
     @staticmethod
     def from_json(obj):
@@ -111,4 +126,4 @@ class Annotation:
     def __repr__(self):
         repr = self.anno
 
-        return json.dumps(repr)
+        return json.dumps(repr, indent=2)
