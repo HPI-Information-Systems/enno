@@ -1,4 +1,5 @@
-import os, json
+import os
+import json
 from email import parser as ep
 from enno.utils.annotation import Annotation
 

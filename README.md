@@ -5,5 +5,13 @@ Frontend inspired by [TextAE](https://github.com/pubannotation/textae), you may 
 
 ## Usage
 
+### Installation
+```bash
+pip install Flask, email
+npm install
+grunt dist
+grunt flask
+```
+
 ## Why that name?
 I needed an annotation tool to annotate emails in the [Enron Corpus](https://www.cs.cmu.edu/~./enron/).

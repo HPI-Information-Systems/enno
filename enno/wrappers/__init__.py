@@ -1,4 +1,5 @@
-import json, sys
+import json
+import sys
 from flask import Blueprint, Response, request
 from enno import config
 
