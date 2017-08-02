@@ -22,7 +22,7 @@ module.exports = function (grunt) {
         concat: {
             js: {
                 src: [
-                    'node_modules/jsplumb/static/jsplumb.min.js',
+                    'node_modules/jsplumb/dist/js/jsplumb.min.js',
                     'enno/src/js/**'
                 ],
                 dest: '<%= dist_target.js %>'
@@ -88,6 +88,12 @@ module.exports = function (grunt) {
                 }, {
                     from: '{{name}}',
                     to: '<%= pkg.name %>'
+                }, {
+                    from: '{{min}}',
+                    to: function() {
+                        if (grunt.cli.tasks.indexOf('dev')>=0) return '';
+                        return '.min';
+                    }
                 }]
             }
         },
@@ -107,5 +113,6 @@ module.exports = function (grunt) {
         spawn('python', ['run.py'], {stdio: 'inherit'});
     });
     grunt.registerTask('dist', ['less', 'concat', 'uglify', 'copy', 'replace:version', 'cssmin']);
+    grunt.registerTask('dev', ['less', 'concat', 'copy', 'replace:version']);
     grunt.registerTask('demo', ['open:app', 'flask']);
 };

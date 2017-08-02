@@ -18,34 +18,62 @@
   background-color: @grid-bg;
   background-image: linear-gradient(@grid-fg 1px, transparent 1px);
   background-size: @height @height;
-  background-position-y: -@tc-fontsize;
 }
-
-.text-container {
-  //.grid(rgba(0, 0, 0, .1), transparent, 1ch, @tc-lineheight);
-  .lines(rgba(0,0,0,.1), transparent, @tc-lineheight);
+.tcfont() {
   font-size: @tc-fontsize;
   line-height: @tc-lineheight;
   font-family: monospace;
 }
 
+.text-container {
+  //.grid(rgba(0, 0, 0, .1), transparent, 1ch, @tc-lineheight);
+  .lines(rgba(0,0,0,.1), transparent, @tc-lineheight);
+  .tcfont;
+  padding: 1em 2ch;
+  box-sizing: border-box;
+}
+
 denotation {
-  background-color: rgba(100, 100, 215, 0.5);
+  background-color: rgba(100, 100, 215, 0.3);
   border-color: rgba(100, 100, 215, 0.8);
   border-style: solid;
   border-width: 1px 0;
+  padding: 0.2em 0.4ch 0 0.4ch;
 }
 
-denotation .hovered {
+denotation.hovered {
   border-color: #ff0000;
   border-width: 2px;
 }
 
+denotation.selected {
+  border-color: #ff0000;
+  border-width: 2px;
+  border-style: dashed;
+}
+
+.relation-endpoint {
+
+}
+.relation-endpoint-hovered {
+
+}
+.relation-connection {
+
+}
+.relation-connection-hovered {
+
+}
+
 span.special-char {
-  color: lightsteelblue;
+  .tcfont;
+  color: rgba(0,0,0,0.6);
+  font-weight:bold;
 }
 denotation span.special-char {
-  color: beige;
+  .tcfont;
+  color: rgba(255,255,255,1);
+  font-weight: bold;
 }
 
 #api-indicator {
@@ -57,4 +85,29 @@ denotation span.special-char {
   font-size: 10pt;
   text-align: left;
   width: 15ch;
+}
+
+#selection-modal {
+  display: none;
+  position: fixed;
+  border: 1px solid royalblue;
+  border-left-width: 2px;
+  border-right-width: 2px;
+  background-color: steelblue;
+  width: 35ch;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  top: 150px;
+  left: 150px;
+}
+#selection-modal ul li {
+  width: 100%;
+  padding: 0.1em 1ch;
+  margin: 1px 0;
+  background-color: rgba(176, 196, 222, 1);
+  cursor: pointer;
+}
+#selection-modal ul li:hover {
+  background-color: rgba(176, 196, 222, 0.5);
 }

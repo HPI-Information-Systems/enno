@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Enno Text Annotator</title>
-    <link href="css/{{name}}-{{version}}.css" type="text/css" rel="stylesheet" />
+    <link href="css/{{name}}-{{version}}{{min}}.css" type="text/css" rel="stylesheet"/>
 
 </head>
 <body>
@@ -11,12 +11,14 @@
 
 </div>
 <div id="api-indicator">Loading.</div>
-<script src="{{name}}-{{version}}.js" type="application/javascript"></script>
+<div id="selection-modal"><ul><li>a</li><li>b</li></ul></div>
+<script src="{{name}}-{{version}}{{min}}.js" type="application/javascript"></script>
 <script type="application/javascript">
     var API = new _API();
     var enno = new Enno();
-    enno.selectSource('enron');
-    enno.selectSample('train/beck-s_all_documents_328.txt');
+    enno.selectSource('enron').then(function (d) {
+        enno.selectSample('train/beck-s_all_documents_328.txt');
+    });
 </script>
 </body>
 </html>

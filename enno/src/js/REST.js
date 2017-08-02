@@ -93,19 +93,18 @@ _API.routes = {
         params = params || {};
         return _API.routes[route].replace(/{{(.*?)}}/g, function (m, param) {
             if (!(param in params) || !params[param])
-                throw new ReferenceError('Parameter "' + param + '" required for ' + route + 'but not defined!');
+                throw new ReferenceError('Parameter "' + param + '" required for ' + route + ' but not defined!');
             return encodeURIComponent(params[param])
         });
     }
 };
 
 _API.prototype.getSources = function () {
-
     return this.get(_API.routes.getPath('getSources'));
 };
 
 _API.prototype.getConfig = function (source) {
-    return this.get(_API.routes.getPath('getSource', {'source': source}));
+    return this.get(_API.routes.getPath('getConfig', {'source': source}));
 };
 
 _API.prototype.getSamples = function (source) {
@@ -116,13 +115,14 @@ _API.prototype.getSample = function (source, sample) {
     return this.get(_API.routes.getPath('getSample', {'source': source, 'sample': sample}));
 };
 
-_API.prototype.upsertDenotation = function (source, sample, start, end, text, typ, id, meta) {
+_API.prototype.upsertDenotation = function (source, sample, start, end, text, type, id, meta) {
+    console.log(type)
     return this.post(_API.routes.getPath('upsertDenotation', {'source': source, 'sample': sample}), {
         'id': id,
         'start': start,
         'end': end,
         'text': text,
-        'typ': typ,
+        'type': type,
         'meta': meta
     })
 };

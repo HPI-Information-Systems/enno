@@ -4,6 +4,8 @@
       "wrapper": "enron",
       "options": {
         "path": "data/enron/",
+        "defaultDenotationType": null,
+        "defaultRelationType": null,
         "denotationTypes": [
           "Header",
           "Header/Person",

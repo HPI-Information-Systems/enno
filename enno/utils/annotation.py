@@ -59,7 +59,7 @@ class Annotation:
     def denotations(self, lst):
         for d in lst:
             self.upsert_denotation(d['start'], d['end'], text=d.get('text', None),
-                                typ=d.get('typ', None), id=d.get('id', None), meta=d.get('meta', None))
+                                typ=d.get('type', None), id=d.get('id', None), meta=d.get('meta', None))
 
     def upsert_denotation(self, start, end, text=None, typ=None, id=None, meta=None):
         lst = self.denotations
@@ -69,7 +69,7 @@ class Annotation:
             'start': start,
             'end': end,
             'text': text,
-            'typ': typ,
+            'type': typ,
             'meta': meta
         }
 

@@ -58,8 +58,9 @@ def upsert_denotation(source, sample):
         payload = request.json
         conf = config['datasources'][source]
         anno = adapters[conf['wrapper']].get_sample(sample, conf['options'])
-        deno = anno.upsert_denotation(payload['start'], payload['end'],
-                                      payload.get('text', None), payload.get('id', None), payload.get('meta', None))
+        deno = anno.upsert_denotation(payload['start'], payload['end'], text=payload.get('text', None),
+                                      typ=payload.get('type', None), id=payload.get('id', None),
+                                      meta=payload.get('meta', None))
         adapters[conf['wrapper']].save_annotation(sample, anno, conf['options'])
         return json_response(deno)
 
