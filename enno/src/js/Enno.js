@@ -14,8 +14,8 @@ function Enno() {
     this.container.addEventListener('mouseup', function (e) {
         that.eventHandlerSelection(e);
     });
-    window.addEventListener('keyup', function(e) {
-        if(e.key === 'Escape') that.eventHandlerEndointReset();
+    window.addEventListener('keyup', function (e) {
+        if (e.key === 'Escape') that.eventHandlerEndointReset();
     })
 }
 
@@ -92,8 +92,8 @@ Enno.prototype.selectSource = function (source) {
                     if (!(denoTo in ret.to)) ret.to[denoTo] = {};
                     if (!(denoFrom in ret.to[denoTo])) ret.to[denoTo][denoFrom] = [];
                     if (!(denoTo in ret.from[denoFrom])) ret.from[denoFrom][denoTo] = [];
-                    ret.from[denoFrom][denoTo].push(relation);
-                    ret.to[denoTo][denoFrom].push(relation);
+                    if (ret.from[denoFrom][denoTo].indexOf(relation) < 0) ret.from[denoFrom][denoTo].push(relation);
+                    if (ret.to[denoTo][denoFrom].indexOf(relation) < 0) ret.to[denoTo][denoFrom].push(relation);
                 });
             });
         }
@@ -149,27 +149,56 @@ Enno.prototype.renderText = function () {
     // draw existing relations
     (this.sample.relations || []).forEach(function (relation) {
         jsPlumb.connect({
-            source: 'deno-' + relation.from.id,
-            target: 'deno-' + relation.to.id
+            source: 'deno-' + relation.origin,
+            target: 'deno-' + relation.target
         }, Enno.connecionConfig);
-    })
+    });
 };
 
 Enno.prototype.eventHandlerEndpointClick = function () {
     var that = this;
-    return function(info) {
+    return function (info, e) {
         if (!!that.selectedEndpoint) {
-            that.eventHandlerEndointReset();
+            var origin = that.selectedEndpoint.getElement();
+            var target = info.getElement();
+            var originType = origin.getAttribute('type');
+            var targetType = target.getAttribute('type');
+            var originId = extractId(origin);
+            var targetId = extractId(target);
+            var possibleTypes = ((that.sourceConfigReverse.from[originType] || {})[targetType] || []);
+            if (possibleTypes.length > 0) {
+                SelectionModal(possibleTypes, e).then(function (type) {
+                    that.addRelation({
+                        'id': null,
+                        'origin': originId,
+                        'target': targetId,
+                        'type': type,
+                        'meta': null
+                    })
+                }).catch(function (data) {
+                    console.error('meh. relation add failed');
+                    console.log(data);
+                });
+                that.eventHandlerEndointReset();
+            } else {
+                console.warn('No relation defined between ' + originType + ' and ' + targetType);
+            }
         } else {
             that.selectedEndpoint = info;
             that.selectedEndpoint.getElement().classList.add('selected');
+        }
+
+        function extractId(elem) {
+            return Number(elem.getAttribute('id').replace(/^\D+/g, ''))
         }
     };
 };
 
 Enno.prototype.eventHandlerEndointReset = function () {
-    this.selectedEndpoint.getElement().classList.remove('selected');
-    this.selectedEndpoint = null;
+    if (!!this.selectedEndpoint) {
+        this.selectedEndpoint.getElement().classList.remove('selected');
+        this.selectedEndpoint = null;
+    }
 };
 
 Enno.prototype.getTextAsHtml = function () {
@@ -252,6 +281,7 @@ Enno.prototype.addDenotation = function (newDenotation) {
     return new Promise(function (resolve, reject) {
         API.upsertDenotation(that.source, that.sampleID, newDenotation.start, newDenotation.end, newDenotation.text,
             newDenotation.type, newDenotation.id, newDenotation.meta).then(function (savedDenotation) {
+            if (!that.sample.denotations) that.sample.denotations = [];
             that.sample.denotations.push(savedDenotation);
             resolve(savedDenotation);
         }).catch(function (data) {
@@ -260,7 +290,22 @@ Enno.prototype.addDenotation = function (newDenotation) {
             reject(data);
         });
     });
+};
 
+Enno.prototype.addRelation = function (newRelation) {
+    var that = this;
+    return new Promise(function (resolve, reject) {
+        API.upsertRelation(that.source, that.sampleID, newRelation.origin,
+            newRelation.target, newRelation.type, newRelation.id, newRelation.meta).then(function (savedRelation) {
+            if (!that.sample.relations) that.sample.relations = [];
+            that.sample.relations.push(savedRelation);
+            resolve(savedRelation);
+        }).catch(function (data) {
+            console.error('meh.');
+            console.error(data);
+            reject(data);
+        });
+    });
 };
 
 Enno.prototype.eventHandlerSelection = function (event) {
@@ -310,8 +355,8 @@ function SelectionModal(options, event) {
             }
         }, true);
 
-        modal.style.top = Math.min(event.clientY, window.innerHeight-400)+'px';
-        modal.style.left = Math.min(event.clientX, window.innerWidth-300)+'px';
+        modal.style.top = Math.min(event.clientY, window.innerHeight - 400) + 'px';
+        modal.style.left = Math.min(event.clientX, window.innerWidth - 300) + 'px';
         modal.style.display = 'block';
 
         function done(data, successful) {

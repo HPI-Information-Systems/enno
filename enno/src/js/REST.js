@@ -89,6 +89,7 @@ _API.routes = {
     'getListing': '/data/listing/{{source}}',
     'getSample': '/data/sample/{{source}}/{{sample}}',
     'upsertDenotation': '/data/denotation/{{source}}/{{sample}}',
+    'upsertRelation': '/data/relation/{{source}}/{{sample}}',
     getPath: function (route, params) {
         params = params || {};
         return _API.routes[route].replace(/{{(.*?)}}/g, function (m, param) {
@@ -116,7 +117,6 @@ _API.prototype.getSample = function (source, sample) {
 };
 
 _API.prototype.upsertDenotation = function (source, sample, start, end, text, type, id, meta) {
-    console.log(type)
     return this.post(_API.routes.getPath('upsertDenotation', {'source': source, 'sample': sample}), {
         'id': id,
         'start': start,
@@ -127,3 +127,12 @@ _API.prototype.upsertDenotation = function (source, sample, start, end, text, ty
     })
 };
 
+_API.prototype.upsertRelation = function (source, sample, origin, target, type, id, meta) {
+    return this.post(_API.routes.getPath('upsertRelation', {'source': source, 'sample': sample}), {
+        'id': id,
+        'origin': origin,
+        'target': target,
+        'type': type,
+        'meta': meta
+    })
+};

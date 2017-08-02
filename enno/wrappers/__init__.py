@@ -39,8 +39,8 @@ def get_sample(source, sample):
         return json_response(adapters[config['datasources'][source]['wrapper']]
                              .get_sample(sample, config['datasources'][source]['options']))
     except:
-        e = sys.exc_info()[1]
-        return json_response({'status': 404, 'message': str(e)}, status=404)
+        e = sys.exc_info()
+        return json_response({'status': 404, 'message': str(e[0])+': '+str(e[1])}, status=404)
 
 
 @wrappers.route('/save/<source>/<path:sample>', methods=['POST'])
@@ -60,6 +60,21 @@ def upsert_denotation(source, sample):
         conf = config['datasources'][source]
         anno = adapters[conf['wrapper']].get_sample(sample, conf['options'])
         deno = anno.upsert_denotation(payload['start'], payload['end'], text=payload.get('text', None),
+                                      typ=payload.get('type', None), id=payload.get('id', None),
+                                      meta=payload.get('meta', None))
+        adapters[conf['wrapper']].save_annotation(sample, anno, conf['options'])
+        return json_response(deno)
+
+    return json_response({'status': 415, 'message': 'wrong header!'})
+
+
+@wrappers.route('/relation/<source>/<path:sample>', methods=['POST'])
+def upsert_relation(source, sample):
+    if 'application/json' in request.headers['Content-Type']:
+        payload = request.json
+        conf = config['datasources'][source]
+        anno = adapters[conf['wrapper']].get_sample(sample, conf['options'])
+        deno = anno.upsert_relation(payload['origin'], payload['target'],
                                       typ=payload.get('type', None), id=payload.get('id', None),
                                       meta=payload.get('meta', None))
         adapters[conf['wrapper']].save_annotation(sample, anno, conf['options'])

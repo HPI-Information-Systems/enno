@@ -45,11 +45,13 @@ class Annotation:
 
     @property
     def relations(self):
-        return self.anno.get('wrapper', [])
+        return self.anno.get('relations', [])
 
     @relations.setter
     def relations(self, lst):
-        pass  # TODO
+        for r in lst:
+            self.upsert_relation(r['origin'], r['target'], typ=r.get('type', None),
+                                 id=r.get('id', None), meta=r.get('meta', None))
 
     @property
     def denotations(self):
@@ -92,6 +94,32 @@ class Annotation:
         self.anno['denotations'] = lst
         return deno
 
+    def upsert_relation(self, origin, target, id=None, typ=None, meta=None):
+        lst = self.relations
+
+        rela = {
+            'id': id,
+            'origin': origin,
+            'target': target,
+            'type': typ,
+            'meta': meta
+        }
+        if id is not None and self.contains_id(id, 'relations'):
+            i = self.get_index(id, lst)
+            lst[i].update(rela)
+        elif id is not None:
+            lst.append(rela)
+            self.ids['relations'].append(rela['id'])
+            self.max['relations'] = max([self.max['relations'], int(rela['id'])])
+        else:
+            rela['id'] = self.max['relations']+1
+            lst.append(rela)
+            self.ids['relations'].append(rela['id'])
+            self.max['relations'] += 1
+
+        self.anno['relations'] = lst
+        return rela
+
     def __ensure_index(self, lst):
         if len(self.anno.get(lst, [])) > 0 and len(self.ids[lst]) == 0:
             for l in self.anno.get(lst, []):
@@ -112,7 +140,8 @@ class Annotation:
     def from_json(obj):
         anno = Annotation()
         anno.text = obj['text']
-        anno.denotations = obj['denotations']
+        anno.denotations = obj.get('denotations', [])
+        anno.relations = obj.get('relations', [])
         anno.meta = obj.get('meta', {})
         return anno
 
