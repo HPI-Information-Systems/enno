@@ -9,25 +9,15 @@ function LoadingSpinner(target) {
         LoadingSpinner.instances.push(this);
     }
     this.instance = this;
-    this.cnt = 0;
-    this.loop = null;
     this.target = document.getElementById(target);
 }
 LoadingSpinner.prototype.start = function () {
-    //console.log(this.loop);
-    if (this.loop === null) {
-        this.cnt = 0;
-        var that = this;
-        this.loop = setInterval(function () {
-            that.target.innerText = 'Loading' + '.'.repeat(that.cnt % 4 + 1);
-            that.cnt++;
-        }, 400)
-    }
+    this.target.classList.remove('ready');
+    this.target.classList.add('working');
 };
 LoadingSpinner.prototype.stop = function () {
-    clearInterval(this.loop);
-    this.target.innerText = '';
-    this.loop = null;
+    this.target.classList.remove('working');
+    this.target.classList.add('ready');
 };
 
 function _API(baseurl, defaultspinner) {
@@ -49,7 +39,7 @@ _API.prototype.get = function (path) {
                     var result = JSON.parse(this.responseText);
                     resolve(result);
                 } else {
-                    reject("Error " + this.status + ' ' + this.statusText);
+                    reject('Error ' + this.status + ' ' + this.statusText);
                 }
             }
         };

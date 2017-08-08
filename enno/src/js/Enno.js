@@ -1,5 +1,6 @@
 function Enno() {
     this.source = null;
+    this.sourceListing = null;
     this.sourceConfig = null;
     this.sourceConfigReverse = null;
     this.sampleID = null;
@@ -16,7 +17,35 @@ function Enno() {
     });
     window.addEventListener('keyup', function (e) {
         if (e.key === 'Escape') that.eventHandlerEndointReset();
-    })
+    });
+    document.getElementById('select-sample-button-list').addEventListener('click', function (e) {
+        SelectionModal(that.sourceListing.nested, e, function (o) {
+            var icon = o['has_annotation'] ? 'fa-file-code-o' : 'fa-file-o';
+            return '<i class="fa ' + icon + '" aria-hidden="true"></i>&nbsp;' + o['name'];
+        }, function (o) {
+            return o['sample'];
+        }).then(function (nextSample) {
+            that.selectSample(nextSample);
+        }).catch(function (error) {
+            console.log(error);
+        });
+    });
+    document.getElementById('select-sample-button-prev').addEventListener('click', function (e) {
+        prevNext(-1);
+    });
+    document.getElementById('select-sample-button-next').addEventListener('click', function (e) {
+        prevNext(1);
+    });
+
+    function prevNext(direction) {
+        var current = that.sourceListing.flat.findIndex(function (sample) {
+            return sample['sample'] === that.sampleID;
+        });
+        var nextIndex = current + direction;
+        if (nextIndex < 0) nextIndex = that.sourceListing.flat.length - 1;
+        if (nextIndex > that.sourceListing.flat.length - 1) nextIndex = 0;
+        return that.selectSample(that.sourceListing.flat[nextIndex].sample);
+    }
 }
 
 Enno.getSelectionRangeWithin = function (element) {
@@ -63,17 +92,34 @@ Enno.prototype.showSources = function () {
 Enno.prototype.selectSource = function (source) {
     var that = this;
     return new Promise(function (resolve, reject) {
-        API.getConfig(source).then(function (conf) {
+        Promise.all([API.getConfig(source), API.getSamples(source)]).then(function (results) {
+            var conf = results[0];
+            var samples = results[1];
+
             that.source = source;
             that.sourceConfig = conf;
             that.sourceConfigReverse = buildReverseConfig(conf);
-            resolve(conf);
+
+            that.sourceListing = {
+                'nested': samples,
+                'flat': flatten(samples)
+            };
+            resolve(results);
         }).catch(function (error) {
-            console.error('meh. set conf error');
+            console.error('meh. set source error');
             console.log(error);
             reject(error);
         })
     });
+
+    function flatten(samples) {
+        return recurse(samples, []);
+        function recurse(folder, acc) {
+            return Array.prototype.concat.apply(acc, Object.keys(folder['folders'] || {}).map(function (subfolder) {
+                return recurse(folder['folders'][subfolder], acc);
+            })).concat(folder['docs']);
+        }
+    }
 
     function buildReverseConfig(conf) {
         conf = conf.options;
@@ -107,9 +153,12 @@ Enno.prototype.showSamples = function () {
 
 Enno.prototype.selectSample = function (sample) {
     var that = this;
+    if (typeof sample === 'number')
+        sample = this.sourceListing.flat[sample]['sample'];
     return new Promise(function (resolve, reject) {
         API.getSample(that.source, sample).then(function (result) {
             that.sampleID = sample;
+            document.getElementById('sample-indicator').innerHTML = sample;
             that.sample = result;
             that.renderText();
             resolve(result);
@@ -129,6 +178,9 @@ Enno.connecionConfig = {
 
 Enno.prototype.renderText = function () {
     var that = this;
+
+    jsPlumb.reset();
+
     this.container.innerHTML = this.getTextAsHtml();
 
     // add jsplumb endpoints
@@ -148,11 +200,22 @@ Enno.prototype.renderText = function () {
 
     // draw existing relations
     (this.sample.relations || []).forEach(function (relation) {
-        jsPlumb.connect({
-            source: 'deno-' + relation.origin,
-            target: 'deno-' + relation.target
-        }, Enno.connecionConfig);
+        that.drawRelation(relation);
     });
+};
+
+Enno.prototype.drawRelation = function (relation) {
+    var connection = {
+        source: 'deno-' + relation.origin,
+        target: 'deno-' + relation.target,
+        overlays: [
+            ["Arrow", {location: -3, length: 15, width: 8}],
+            ["Label", {label: relation.type, location: 0.5, cssClass: 'relation-label'}]
+        ]
+    };
+    if (this.sourceConfig.options.relationTypes[relation.type].type.indexOf('symmetric') >= 0)
+        connection.overlays.push(["Arrow", {location: 3, length: 15, width: 8, direction: -1}]);
+    jsPlumb.connect(connection, Enno.connecionConfig);
 };
 
 Enno.prototype.eventHandlerEndpointClick = function () {
@@ -299,6 +362,7 @@ Enno.prototype.addRelation = function (newRelation) {
             newRelation.target, newRelation.type, newRelation.id, newRelation.meta).then(function (savedRelation) {
             if (!that.sample.relations) that.sample.relations = [];
             that.sample.relations.push(savedRelation);
+            that.drawRelation(savedRelation);
             resolve(savedRelation);
         }).catch(function (data) {
             console.error('meh.');
@@ -324,39 +388,45 @@ Enno.prototype.eventHandlerSelection = function (event) {
             console.error('meh. type chosen fail');
             console.error(data);
         });
-    }).catch(function (data) {
-        console.log('reject selection')
+    }).catch(function (error) {
+        console.log('reject selection' + error);
     })
 };
 
-function SelectionModal(options, event) {
+function SelectionModal(options, event, opt2txt, opt2id) {
+    if (!!SelectionModal.killActivePromise) SelectionModal.killActivePromise();
+
     return new Promise(function (resolve, reject) {
         var modal = document.getElementById('selection-modal');
         var list = modal.getElementsByTagName('ul')[0];
         // reset list
         list.innerHTML = '';
 
-        options.forEach(function (option) {
-            var li = document.createElement('LI');
-            li.appendChild(document.createTextNode(option));
-            li.addEventListener('click', function (e) {
-                done(this.innerHTML, true);
-            });
-            list.appendChild(li);
-        });
+        if (!opt2txt) opt2txt = function (option) {
+            return option;
+        };
+        if (!opt2id) opt2id = function (option) {
+            return option;
+        };
 
+        if (Array.isArray(options)) listFromFlat(options, list);
+        else listFromNested(options, list);
+
+        SelectionModal.killActivePromise = function () {
+            done('new selection modal initiated', false);
+        };
         var keylistener = window.addEventListener('keyup', function (e) {
             switch (e.key) {
                 case 'Escape':
-                    done(undefined, false);
+                    done('selection modal canceled', false);
                     break;
                 default:
                     return;
             }
         }, true);
 
-        modal.style.top = Math.min(event.clientY, window.innerHeight - 400) + 'px';
-        modal.style.left = Math.min(event.clientX, window.innerWidth - 300) + 'px';
+        modal.style.top = Math.min(event.clientY, Math.abs(window.innerHeight - 400)) + 'px';
+        modal.style.left = Math.min(event.clientX, Math.abs(window.innerWidth - 320)) + 'px';
         modal.style.display = 'block';
 
         function done(data, successful) {
@@ -366,5 +436,35 @@ function SelectionModal(options, event) {
             if (successful) resolve(data);
             else reject(data);
         }
+
+        function listFromFlat(options, list) {
+            options.forEach(function (option) {
+                var li = document.createElement('LI');
+                li.innerHTML = opt2txt(option);
+                li.setAttribute('sample-id', opt2id(option));
+                li.addEventListener('click', function (e) {
+                    done(this.getAttribute('sample-id'), true);
+                });
+                list.appendChild(li);
+            });
+        }
+
+        function listFromNested(nested, list) {
+            Object.keys(nested['folders']).forEach(function (folder) {
+                var li = document.createElement('LI');
+                li.innerHTML = '<i class="fa fa-folder-open-o" aria-hidden="true"></i>&nbsp;' + folder;
+                list.appendChild(li);
+                var sublist = document.createElement('UL');
+                sublist.style.marginLeft = '2ch';
+                sublist.style.display = 'none';
+                li.addEventListener('click', function (e) {
+                    sublist.style.display = (sublist.style.display === 'none') ? 'block' : 'none';
+                });
+                listFromNested(nested['folders'][folder], sublist);
+                list.appendChild(sublist);
+            });
+            listFromFlat(nested['docs'] || [], list);
+        }
     });
 }
+SelectionModal.killActivePromise = undefined;

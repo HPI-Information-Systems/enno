@@ -7,11 +7,26 @@
 
 </head>
 <body>
-<div style="width: 100%;" class="text-container" id="sample-container">
+<div id="sample-container">
 
 </div>
-<div id="api-indicator">Loading.</div>
-<div id="selection-modal"><ul><li>a</li><li>b</li></ul></div>
+
+
+<div id="navbar">
+    <div id="api-indicator" class="working"><i class="fa fa-cloud" aria-hidden="true"></i></div>
+    <button id="select-sample-button-prev"><i class="fa fa-hand-o-left" aria-hidden="true"></i></button>
+    <button id="select-sample-button-next"><i class="fa fa-hand-o-right" aria-hidden="true"></i></button>
+    <button id="select-sample-button-list"><i class="fa fa-list" aria-hidden="true"></i></button>
+    <div style="clear: both;"></div>
+    <div id="sample-indicator"></div>
+</div>
+
+<div id="selection-modal">
+    <ul>
+        <li>a</li>
+    </ul>
+</div>
+
 <script src="{{name}}-{{version}}{{min}}.js" type="application/javascript"></script>
 <script type="application/javascript">
     var API = new _API();
