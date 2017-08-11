@@ -11,7 +11,6 @@
           "Header/Person",
           "Header/Person/From",
           "Header/Person/To",
-          "Header/Person/From",
           "Header/Person/Cc",
           "Header/Person/Bcc",
           "Header/Subject",

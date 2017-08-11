@@ -26,6 +26,14 @@ class Annotation:
         self.anno['text'] = txt
 
     @property
+    def id(self):
+        return self.anno.get('id', '')
+
+    @id.setter
+    def id(self, id):
+        self.anno['id'] = id
+
+    @property
     def meta(self):
         return self.anno.get('meta', {})
 
@@ -61,7 +69,7 @@ class Annotation:
     def denotations(self, lst):
         for d in lst:
             self.upsert_denotation(d['start'], d['end'], text=d.get('text', None),
-                                typ=d.get('type', None), id=d.get('id', None), meta=d.get('meta', None))
+                                   typ=d.get('type', None), id=d.get('id', None), meta=d.get('meta', None))
 
     def upsert_denotation(self, start, end, text=None, typ=None, id=None, meta=None):
         lst = self.denotations
@@ -86,13 +94,27 @@ class Annotation:
             self.ids['denotations'].append(deno['id'])
             self.max['denotations'] = max([self.max['denotations'], int(deno['id'])])
         else:
-            deno['id'] = self.max['denotations']+1
+            deno['id'] = self.max['denotations'] + 1
             lst.append(deno)
             self.ids['denotations'].append(deno['id'])
             self.max['denotations'] += 1
 
         self.anno['denotations'] = lst
         return deno
+
+    def delete_denotation(self, denotation):
+        denotations = self.denotations
+        remove_index = self.get_index(denotation, denotations)
+        removed_denotation = denotations.pop(remove_index)
+
+        relations = self.relations
+        removed_relations = []
+        for relation in relations:
+            if relation['origin'] == denotation or relation['target'] == denotation:
+                removed_relations.append(self.delete_relation(relation['id']))
+
+        self.anno['denotations'] = denotations
+        return removed_relations
 
     def upsert_relation(self, origin, target, id=None, typ=None, meta=None):
         lst = self.relations
@@ -112,13 +134,20 @@ class Annotation:
             self.ids['relations'].append(rela['id'])
             self.max['relations'] = max([self.max['relations'], int(rela['id'])])
         else:
-            rela['id'] = self.max['relations']+1
+            rela['id'] = self.max['relations'] + 1
             lst.append(rela)
             self.ids['relations'].append(rela['id'])
             self.max['relations'] += 1
 
         self.anno['relations'] = lst
         return rela
+
+    def delete_relation(self, relation):
+        relations = self.relations
+        remove_index = self.get_index(relation, relations)
+        removed_relation = relations.pop(remove_index)
+        self.anno['relations'] = relations
+        return removed_relation
 
     def __ensure_index(self, lst):
         if len(self.anno.get(lst, [])) > 0 and len(self.ids[lst]) == 0:

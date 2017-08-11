@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 from email import parser as ep
 from enno.utils.annotation import Annotation
 
@@ -12,7 +13,8 @@ def get_listing(options):
     path = options['path']
     ret = {
         'folders': {},
-        'docs': []
+        'docs': [],
+        'flat': []
     }
     for p, d, f in os.walk(path):
         tmp = ret
@@ -26,18 +28,26 @@ def get_listing(options):
 
         for ff in f:
             if ff.endswith('.txt'):
-                tmp['docs'].append({
+                sample = {
                     'name': ff,
                     'has_annotation': __has_annotation(os.path.join(options['path'], p, ff)),
                     'sample': p + '/' + ff
-                })
+                }
+                tmp['docs'].append(sample)
+                ret['flat'].append(sample)
+        tmp['docs'] = sorted(tmp['docs'], key=lambda k: k['name'])
+
+    ret['flat'] = sorted(ret['flat'], key=lambda k: k['name'])
     return ret
 
 
 def get_sample(sample, options):
     path = os.path.join(options['path'], sample)
     if __has_annotation(path):
-        return Annotation.from_file(path + '.ann')
+        anno = Annotation.from_file(path + '.ann')
+        if len(anno.id) == 0:  # legacy fix (some might not have an ID)
+            anno.id = sample
+        return anno
 
     f = open(path, 'r')
     mailparser = ep.Parser()
@@ -45,11 +55,27 @@ def get_sample(sample, options):
     f.close()
 
     anno = Annotation()
+    anno.id = sample
     anno.meta = {'header': dict(mail.items())}
     anno.wrapper = 'enron'
     anno.text = mail.get_payload()
 
     return anno
+
+
+def get_last_sample_id(options):
+    path = os.path.join(options['path'], '.last')
+    f = open(path, 'r')
+    sample = f.read()
+    f.close()
+    if os.path.isfile(os.path.join(options['path'], sample)):
+        return sample
+    return get_listing(options)['flat'][0]
+
+
+def set_last_sample(sample, options):
+    with open(os.path.join(options['path'], '.last'), 'w') as f:
+        f.write(sample)
 
 
 def save_sample(sample, payload, options):

@@ -5,47 +5,29 @@ function Enno() {
     this.sourceConfigReverse = null;
     this.sampleID = null;
     this.sample = null;
-    this.selectedEndpoint = null;
 
     this.container = document.getElementById('sample-container');
 
-    // TODO
-    // initialise global event listeners
+
     var that = this;
+
+    // initialise global event listeners
     this.container.addEventListener('mouseup', function (e) {
-        that.eventHandlerSelection(e);
-    });
+        if (window.getSelection().toString())
+            that.eventHandlerSelection(e);
+        else if (e.target !== e.currentTarget && e.target.tagName === 'DENOTATION')
+            that.eventHandlerClickDenotation(e);
+
+        e.stopPropagation();
+    }, false);
+
     window.addEventListener('keyup', function (e) {
-        if (e.key === 'Escape') that.eventHandlerEndointReset();
-    });
-    document.getElementById('select-sample-button-list').addEventListener('click', function (e) {
-        SelectionModal(that.sourceListing.nested, e, function (o) {
-            var icon = o['has_annotation'] ? 'fa-file-code-o' : 'fa-file-o';
-            return '<i class="fa ' + icon + '" aria-hidden="true"></i>&nbsp;' + o['name'];
-        }, function (o) {
-            return o['sample'];
-        }).then(function (nextSample) {
-            that.selectSample(nextSample);
-        }).catch(function (error) {
-            console.log(error);
-        });
-    });
-    document.getElementById('select-sample-button-prev').addEventListener('click', function (e) {
-        prevNext(-1);
-    });
-    document.getElementById('select-sample-button-next').addEventListener('click', function (e) {
-        prevNext(1);
+        if (e.key === 'Escape') that.eventHandlerDenotationSelectionReset();
+        if (e.key === 'Delete') that.eventHandlerRemoveKey();
     });
 
-    function prevNext(direction) {
-        var current = that.sourceListing.flat.findIndex(function (sample) {
-            return sample['sample'] === that.sampleID;
-        });
-        var nextIndex = current + direction;
-        if (nextIndex < 0) nextIndex = that.sourceListing.flat.length - 1;
-        if (nextIndex > that.sourceListing.flat.length - 1) nextIndex = 0;
-        return that.selectSample(that.sourceListing.flat[nextIndex].sample);
-    }
+    // navigation buttons
+    this.initNavigationButtons();
 }
 
 Enno.getSelectionRangeWithin = function (element) {
@@ -84,6 +66,38 @@ Enno.removeSelectionRange = function () {
     }
 };
 
+Enno.prototype.initNavigationButtons = function () {
+    var that = this;
+    document.getElementById('select-sample-button-list').addEventListener('click', function (e) {
+        SelectionModal(that.sourceListing.nested, e, function (o) {
+            var icon = o['has_annotation'] ? 'fa-file-code-o' : 'fa-file-o';
+            return '<i class="fa ' + icon + '" aria-hidden="true"></i>&nbsp;' + o['name'];
+        }, function (o) {
+            return o['sample'];
+        }).then(function (nextSample) {
+            that.selectSample(nextSample);
+        }).catch(function (error) {
+            console.log(error);
+        });
+    });
+    document.getElementById('select-sample-button-prev').addEventListener('click', function (e) {
+        prevNext(-1);
+    });
+    document.getElementById('select-sample-button-next').addEventListener('click', function (e) {
+        prevNext(1);
+    });
+
+    function prevNext(direction) {
+        var current = that.sourceListing.flat.findIndex(function (sample) {
+            return sample['sample'] === that.sampleID;
+        });
+        var nextIndex = current + direction;
+        if (nextIndex < 0) nextIndex = that.sourceListing.flat.length - 1;
+        if (nextIndex > that.sourceListing.flat.length - 1) nextIndex = 0;
+        return that.selectSample(that.sourceListing.flat[nextIndex].sample);
+    }
+};
+
 Enno.prototype.showSources = function () {
     // TODO
     // displays modal with all configured data sources
@@ -101,8 +115,8 @@ Enno.prototype.selectSource = function (source) {
             that.sourceConfigReverse = buildReverseConfig(conf);
 
             that.sourceListing = {
-                'nested': samples,
-                'flat': flatten(samples)
+                'nested': {'folders': samples['folders'], 'docs': samples['docs']},
+                'flat': samples['flat']
             };
             resolve(results);
         }).catch(function (error) {
@@ -111,15 +125,6 @@ Enno.prototype.selectSource = function (source) {
             reject(error);
         })
     });
-
-    function flatten(samples) {
-        return recurse(samples, []);
-        function recurse(folder, acc) {
-            return Array.prototype.concat.apply(acc, Object.keys(folder['folders'] || {}).map(function (subfolder) {
-                return recurse(folder['folders'][subfolder], acc);
-            })).concat(folder['docs']);
-        }
-    }
 
     function buildReverseConfig(conf) {
         conf = conf.options;
@@ -146,27 +151,31 @@ Enno.prototype.selectSource = function (source) {
     }
 };
 
-Enno.prototype.showSamples = function () {
-    // TODO
-    // displays a modal with all samples of selected data source
-};
-
 Enno.prototype.selectSample = function (sample) {
     var that = this;
-    if (typeof sample === 'number')
-        sample = this.sourceListing.flat[sample]['sample'];
+
     return new Promise(function (resolve, reject) {
-        API.getSample(that.source, sample).then(function (result) {
-            that.sampleID = sample;
-            document.getElementById('sample-indicator').innerHTML = sample;
+        if (!sample) {
+            API.getLastSample(that.source).then(success).catch(fail);
+        } else {
+            if (typeof sample === 'number')
+                sample = that.sourceListing.flat[sample]['sample'];
+            API.getSample(that.source, sample).then(success).catch(fail);
+        }
+
+        function success(result) {
+            that.sampleID = result['id'];
+            document.getElementById('sample-indicator').innerHTML = result['id'];
             that.sample = result;
             that.renderText();
             resolve(result);
-        }).catch(function (error) {
+        }
+
+        function fail(error) {
             console.error('meh. sample select failed.');
             console.log(error);
             reject(error);
-        })
+        }
     });
 };
 
@@ -194,7 +203,7 @@ Enno.prototype.renderText = function () {
                 isTarget: isTarget
             }, Enno.connecionConfig);
 
-            endpoint.bind('click', that.eventHandlerEndpointClick())
+            //endpoint.bind('click', that.eventHandlerEndpointClick())
         }
     });
 
@@ -218,16 +227,24 @@ Enno.prototype.drawRelation = function (relation) {
     jsPlumb.connect(connection, Enno.connecionConfig);
 };
 
-Enno.prototype.eventHandlerEndpointClick = function () {
+Enno.prototype.eventHandlerClickDenotation = function (e) {
+    console.log('clicked denotation ' + Enno.idFromElement(e.target) + ' with type ' + Enno.typeFromElement(e.target));
+
+    var selectedDenotations = Enno.getSelectedDenotations();
+    this.eventHandlerDenotationSelectionSet(e);
+
     var that = this;
-    return function (info, e) {
-        if (!!that.selectedEndpoint) {
-            var origin = that.selectedEndpoint.getElement();
-            var target = info.getElement();
-            var originType = origin.getAttribute('type');
-            var targetType = target.getAttribute('type');
-            var originId = extractId(origin);
-            var targetId = extractId(target);
+    if (selectedDenotations.length > 0) {
+        var origin = selectedDenotations[0];
+        var target = e.target;
+        var originType = Enno.typeFromElement(origin);
+        var targetType = Enno.typeFromElement(target);
+        var originId = Enno.idFromElement(origin);
+        var targetId = Enno.idFromElement(target);
+        if (originId === targetId) {
+            console.log('same denotation clicked!');
+            this.eventHandlerDenotationSelectionReset(target);
+        } else {
             var possibleTypes = ((that.sourceConfigReverse.from[originType] || {})[targetType] || []);
             if (possibleTypes.length > 0) {
                 SelectionModal(possibleTypes, e).then(function (type) {
@@ -237,30 +254,64 @@ Enno.prototype.eventHandlerEndpointClick = function () {
                         'target': targetId,
                         'type': type,
                         'meta': null
-                    })
+                    });
+                    that.eventHandlerDenotationSelectionReset();
                 }).catch(function (data) {
                     console.error('meh. relation add failed');
                     console.log(data);
+                    that.eventHandlerDenotationSelectionReset();
                 });
-                that.eventHandlerEndointReset();
             } else {
                 console.warn('No relation defined between ' + originType + ' and ' + targetType);
             }
-        } else {
-            that.selectedEndpoint = info;
-            that.selectedEndpoint.getElement().classList.add('selected');
         }
-
-        function extractId(elem) {
-            return Number(elem.getAttribute('id').replace(/^\D+/g, ''))
-        }
-    };
+    }
 };
 
-Enno.prototype.eventHandlerEndointReset = function () {
-    if (!!this.selectedEndpoint) {
-        this.selectedEndpoint.getElement().classList.remove('selected');
-        this.selectedEndpoint = null;
+Enno.idFromElement = function (elem) {
+    return Number(elem.getAttribute('id').replace(/^\D+/g, ''))
+};
+Enno.typeFromElement = function (elem) {
+    return elem.getAttribute('type');
+};
+
+Enno.getSelectedDenotations = function () {
+    return document.querySelectorAll('denotation.selected');
+};
+Enno.getSelectedRelations = function () {
+    return []; // TODO
+};
+
+Enno.prototype.eventHandlerDenotationSelectionReset = function (target) {
+    if (!target) {
+        Enno.getSelectedDenotations().forEach(function (denotation) {
+            remove(denotation);
+        })
+    } else if (target instanceof Event) {
+        remove(target.target);
+    } else if (target instanceof HTMLElement) {
+        remove(target);
+    }
+
+    function remove(elem) {
+        elem.classList.remove('selected');
+    }
+};
+
+Enno.prototype.eventHandlerDenotationSelectionSet = function (e) {
+    if (e.target.tagName === 'DENOTATION' || e.target.parentNode.tagName === 'DENOTATION')
+        e.target.classList.add('selected');
+};
+
+Enno.prototype.eventHandlerRemoveKey = function () {
+    var selectedDenotations = Enno.getSelectedDenotations();
+    var selectedRelations = Enno.getSelectedRelations();
+
+    // by default only deletes the first if multiple are selected
+    if (selectedDenotations.length > 0) {
+        this.removeDenotation(Enno.idFromElement(selectedDenotations[0]));
+    } else if (selectedRelations.length > 0) {
+        this.removeRelation(Enno.idFromElement(selectedRelations[0]));
     }
 };
 
@@ -316,8 +367,8 @@ Enno.prototype.getTextAsHtml = function () {
         for (var boundary in index) {
             index[boundary].sort(function (a, b) {
                 if (a.type === 'start' && b.type === 'start') return b.end - a.end;
-                if (a.type === 'end' && b.type === 'start') return 1;
-                if (a.type === 'start' && b.type === 'end') return -1;
+                if (a.type === 'end' && b.type === 'start') return -1;
+                if (a.type === 'start' && b.type === 'end') return 1;
                 return 0;
             });
         }
@@ -355,6 +406,29 @@ Enno.prototype.addDenotation = function (newDenotation) {
     });
 };
 
+Enno.prototype.removeDenotation = function (denotation) {
+    var that = this;
+    return new Promise(function (resolve, reject) {
+        API.deleteDenotation(that.source, that.sampleID, denotation).then(function (removedRelations) {
+            if (!that.sample.denotations) that.sample.denotations = [];
+            var removeIndex = that.sample.denotations.findIndex(function (current_denotation) {
+                return current_denotation['id'] === denotation;
+            });
+            that.sample.denotations.splice(removeIndex, 1);
+
+            removedRelations.forEach(function (removedRelation) {
+                that.removeRelationLocally(removedRelation['id']);
+            });
+
+            resolve(removedRelations);
+        }).catch(function (error) {
+            console.error('meh. failed to remove denotation!');
+            console.error(error);
+            reject(error);
+        });
+    });
+};
+
 Enno.prototype.addRelation = function (newRelation) {
     var that = this;
     return new Promise(function (resolve, reject) {
@@ -366,8 +440,30 @@ Enno.prototype.addRelation = function (newRelation) {
             resolve(savedRelation);
         }).catch(function (data) {
             console.error('meh.');
-            console.error(data);
+            console.log(data);
             reject(data);
+        });
+    });
+};
+
+Enno.prototype.removeRelationLocally = function (relation) {
+    if (!this.sample.relations) return;
+    var removeIndex = this.sample.relations.findIndex(function (current_relation) {
+        return current_relation['id'] === relation;
+    });
+    return this.sample.relations.splice(removeIndex, 1);
+};
+
+Enno.prototype.removeRelation = function (relation) {
+    var that = this;
+    return new Promise(function (resolve, reject) {
+        API.deleteRelation(that.source, that.sampleID, relation).then(function (removedRelation) {
+            that.removeRelationLocally(removedRelation['id']);
+            resolve(removedRelation);
+        }).catch(function (error) {
+            console.error('meh. failed to remove relation!');
+            console.log(error);
+            reject(error);
         });
     });
 };
@@ -386,7 +482,7 @@ Enno.prototype.eventHandlerSelection = function (event) {
             that.renderText();
         }).catch(function (data) {
             console.error('meh. type chosen fail');
-            console.error(data);
+            console.log(data);
         });
     }).catch(function (error) {
         console.log('reject selection' + error);
