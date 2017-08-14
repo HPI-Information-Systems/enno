@@ -110,7 +110,7 @@ class Annotation:
         relations = self.relations
         removed_relations = []
         for relation in relations:
-            if relation['origin'] == denotation or relation['target'] == denotation:
+            if str(relation['origin']) == str(denotation) or str(relation['target']) == str(denotation):
                 removed_relations.append(self.delete_relation(relation['id']))
 
         self.anno['denotations'] = denotations
@@ -161,7 +161,7 @@ class Annotation:
 
     def get_index(self, id, lst):
         for i, d in enumerate(lst):
-            if d['id'] == id:
+            if str(d['id']) == str(id):
                 return i
         return None
 

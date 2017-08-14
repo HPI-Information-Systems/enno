@@ -7,7 +7,7 @@ function Enno() {
     this.sample = null;
 
     this.container = document.getElementById('sample-container');
-
+    this.connectionMapping = {};
 
     var that = this;
 
@@ -15,14 +15,17 @@ function Enno() {
     this.container.addEventListener('mouseup', function (e) {
         if (window.getSelection().toString())
             that.eventHandlerSelection(e);
-        else if (e.target !== e.currentTarget && e.target.tagName === 'DENOTATION')
+        else if (e.target !== e.currentTarget && Enno.isEventOnDenotation(e))
             that.eventHandlerClickDenotation(e);
 
         e.stopPropagation();
     }, false);
 
     window.addEventListener('keyup', function (e) {
-        if (e.key === 'Escape') that.eventHandlerDenotationSelectionReset();
+        if (e.key === 'Escape') {
+            that.eventHandlerDenotationSelectionReset();
+            that.eventHandlerRelationSelectionReset();
+        }
         if (e.key === 'Delete') that.eventHandlerRemoveKey();
     });
 
@@ -214,21 +217,35 @@ Enno.prototype.renderText = function () {
 };
 
 Enno.prototype.drawRelation = function (relation) {
+    var that = this;
+    var relationId = 'rela-' + relation.id;
     var connection = {
         source: 'deno-' + relation.origin,
         target: 'deno-' + relation.target,
         overlays: [
             ["Arrow", {location: -3, length: 15, width: 8}],
-            ["Label", {label: relation.type, location: 0.5, cssClass: 'relation-label'}]
+            ["Label", {
+                label: relation.type, location: 0.5, cssClass: 'relation-label',
+                id: relationId,
+                events: {
+                    click: that.eventHandlerClickRelation()
+                }
+            }]
         ]
     };
     if (this.sourceConfig.options.relationTypes[relation.type].type.indexOf('symmetric') >= 0)
         connection.overlays.push(["Arrow", {location: 3, length: 15, width: 8, direction: -1}]);
-    jsPlumb.connect(connection, Enno.connecionConfig);
+    var newConnection = jsPlumb.connect(connection, Enno.connecionConfig);
+    this.connectionMapping[newConnection.getOverlays()[relationId].getElement().id] = {
+        relationId: relationId,
+        connectionId: newConnection.id
+    };
 };
 
 Enno.prototype.eventHandlerClickDenotation = function (e) {
-    console.log('clicked denotation ' + Enno.idFromElement(e.target) + ' with type ' + Enno.typeFromElement(e.target));
+    var clickedDenotationElement = Enno.getDenotationElementFromEvent(e);
+    console.log('clicked denotation ' + Enno.idFromElement(clickedDenotationElement) +
+        ' with type ' + Enno.typeFromElement(clickedDenotationElement));
 
     var selectedDenotations = Enno.getSelectedDenotations();
     this.eventHandlerDenotationSelectionSet(e);
@@ -236,7 +253,7 @@ Enno.prototype.eventHandlerClickDenotation = function (e) {
     var that = this;
     if (selectedDenotations.length > 0) {
         var origin = selectedDenotations[0];
-        var target = e.target;
+        var target = clickedDenotationElement;
         var originType = Enno.typeFromElement(origin);
         var targetType = Enno.typeFromElement(target);
         var originId = Enno.idFromElement(origin);
@@ -268,8 +285,25 @@ Enno.prototype.eventHandlerClickDenotation = function (e) {
     }
 };
 
+Enno.prototype.eventHandlerClickRelation = function () {
+    var that = this;
+    return function (overlay, event) {
+        var relationId = Enno.idFromElement(overlay.id);
+        var relationType = overlay.getLabel();
+
+        console.log('clicked relation ' + relationId + ' with type ' + relationType);
+        var selectedRelations = that.getSelectedRelations();
+        if (selectedRelations.length === 0) {
+            overlay.getElement().classList.add('selected');
+        } else {
+            that.eventHandlerRelationSelectionReset(overlay.id);
+        }
+    };
+};
+
 Enno.idFromElement = function (elem) {
-    return Number(elem.getAttribute('id').replace(/^\D+/g, ''))
+    var str = (elem instanceof HTMLElement) ? elem.getAttribute('id') : elem;
+    return Number(str.replace(/^\D+/g, ''));
 };
 Enno.typeFromElement = function (elem) {
     return elem.getAttribute('type');
@@ -278,15 +312,27 @@ Enno.typeFromElement = function (elem) {
 Enno.getSelectedDenotations = function () {
     return document.querySelectorAll('denotation.selected');
 };
-Enno.getSelectedRelations = function () {
-    return []; // TODO
+Enno.prototype.getSelectedRelations = function () {
+    var that = this;
+    var ret = [];
+    document.querySelectorAll('div.relation-label.selected').forEach(function (elem) {
+        ret.push({
+            element: elem,
+            id: Enno.idFromElement(that.connectionMapping[elem.id].relationId),
+            relationId: that.connectionMapping[elem.id].relationId,
+            connectionId: that.connectionMapping[elem.id].connectionId
+        });
+    });
+    return ret;
 };
 
-Enno.prototype.eventHandlerDenotationSelectionReset = function (target) {
-    if (!target) {
-        Enno.getSelectedDenotations().forEach(function (denotation) {
-            remove(denotation);
-        })
+Enno.prototype.eventHandlerRelationSelectionReset = function (target) {
+    if (!target || typeof target === 'string') {
+        this.getSelectedRelations().forEach(function (selectedRelation) {
+            if (!target || selectedRelation.relationId === target) {
+                remove(selectedRelation.element);
+            }
+        });
     } else if (target instanceof Event) {
         remove(target.target);
     } else if (target instanceof HTMLElement) {
@@ -298,20 +344,68 @@ Enno.prototype.eventHandlerDenotationSelectionReset = function (target) {
     }
 };
 
-Enno.prototype.eventHandlerDenotationSelectionSet = function (e) {
-    if (e.target.tagName === 'DENOTATION' || e.target.parentNode.tagName === 'DENOTATION')
-        e.target.classList.add('selected');
+Enno.prototype.eventHandlerDenotationSelectionReset = function (target) {
+    if (!target) {
+        Enno.getSelectedDenotations().forEach(function (denotation) {
+            remove(denotation);
+        })
+    } else if (target instanceof Event) {
+        remove(Enno.getDenotationElementFromEvent(target));
+    } else if (target instanceof HTMLElement) {
+        remove(target);
+    }
+
+    function remove(elem) {
+        elem.classList.remove('selected');
+    }
 };
+Enno.prototype.eventHandlerDenotationSelectionSet = function (target) {
+    if (target instanceof Event) {
+        add(Enno.getDenotationElementFromEvent(target));
+    } else if (target instanceof HTMLElement) {
+        add(target);
+    }
+
+    function add(elem) {
+        if (!!elem)
+            elem.classList.add('selected');
+    }
+};
+
+Enno.getDenotationElementFromEvent = function (e) {
+    if (e.target.tagName === 'DENOTATION')
+        return e.target;
+    if (e.target.parentNode.tagName === 'DENOTATION')
+        return e.target.parentNode;
+    return null;
+};
+
+Enno.isEventOnDenotation = function (e) {
+    var elem = Enno.getDenotationElementFromEvent(e);
+    return (!!elem);
+};
+
 
 Enno.prototype.eventHandlerRemoveKey = function () {
     var selectedDenotations = Enno.getSelectedDenotations();
-    var selectedRelations = Enno.getSelectedRelations();
+    var selectedRelations = this.getSelectedRelations();
 
+    var that = this;
     // by default only deletes the first if multiple are selected
     if (selectedDenotations.length > 0) {
-        this.removeDenotation(Enno.idFromElement(selectedDenotations[0]));
+        this.removeDenotation(Enno.idFromElement(selectedDenotations[0])).then(function (data) {
+            that.renderText();
+        }).catch(function (error) {
+            console.error('meh. failed denotation removal!');
+            console.log(error);
+        });
     } else if (selectedRelations.length > 0) {
-        this.removeRelation(Enno.idFromElement(selectedRelations[0]));
+        this.removeRelation(selectedRelations[0].id).then(function (data) {
+            that.renderText();
+        }).catch(function (error) {
+            console.error('meh. failed relation removal!');
+            console.log(error);
+        });
     }
 };
 

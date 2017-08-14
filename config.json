@@ -13,6 +13,11 @@
           "Header/Person/To",
           "Header/Person/Cc",
           "Header/Person/Bcc",
+          "Header/Org",
+          "Header/Org/From",
+          "Header/Org/To",
+          "Header/Org/Cc",
+          "Header/Org/Bcc",
           "Header/Subject",
           "Header/Sent",
           "Header/Sent/Date",
@@ -74,10 +79,10 @@
           },
           "WorksFor": {
             "type": "directed",
-            "from": [
+            "to": [
               "Body/Signature/Organisation"
             ],
-            "to": [
+            "from": [
               "Body/Signature/Name"
             ]
           }

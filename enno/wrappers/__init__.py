@@ -11,7 +11,7 @@ wrappers = Blueprint('wrappers', __name__)
 
 
 def json_response(obj, status=200):
-    if type(obj) is dict:
+    if type(obj) is dict or type(obj) is list:
         obj = json.dumps(obj)
     return Response(str(obj), status=status, mimetype='application/json')
 

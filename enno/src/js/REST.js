@@ -25,6 +25,13 @@ function _API(baseurl, defaultspinner) {
     this.defaultspinner = defaultspinner || 'api-indicator';
     this.pendingRequests = {};
 }
+_API.parseResponse = function(response) {
+    try{
+        return JSON.parse(response);
+    } catch(e){
+        return response;
+    }
+};
 _API.prototype.get = function (path) {
     var loadingSpinner = new LoadingSpinner(this.defaultspinner);
     loadingSpinner.start();
@@ -36,7 +43,7 @@ _API.prototype.get = function (path) {
             if (this.readyState === 4) {
                 loadingSpinner.stop();
                 if (this.status === 200) {
-                    var result = JSON.parse(this.responseText);
+                    var result = _API.parseResponse(this.responseText);
                     resolve(result);
                 } else {
                     reject('Error ' + this.status + ' ' + this.statusText);
@@ -59,7 +66,7 @@ _API.prototype.delete = function (path) {
             if (this.readyState === 4) {
                 loadingSpinner.stop();
                 if (this.status === 200) {
-                    var result = JSON.parse(this.responseText);
+                    var result = _API.parseResponse(this.responseText);
                     resolve(result);
                 } else {
                     reject('Error ' + this.status + ' ' + this.statusText);
@@ -81,7 +88,7 @@ _API.prototype.post = function (path, payload) {
             if (this.readyState === 4) {
                 loadingSpinner.stop();
                 if (this.status === 200) {
-                    var result = JSON.parse(this.responseText);
+                    var result = _API.parseResponse(this.responseText);
                     resolve(result);
                 } else {
                     reject('Error ' + this.status + ' ' + this.statusText);
