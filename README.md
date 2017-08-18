@@ -3,8 +3,9 @@ A web-based visual text annotation tool, which hopefully is less painful to use.
 
 Demo video of the first usable prototype (18.08.2017, 64a9ad5)
 
-[![Demo](http://img.youtube.com/vi/tDAIttzuxE8/0.jpg)](http://www.youtube.com/watch?v=tDAIttzuxE8 "Demo of the Enno Annotator (First prototype!)
+[![Demo 1](http://img.youtube.com/vi/17WjPtzdwnw/0.jpg)](http://www.youtube.com/watch?v=17WjPtzdwnw "Demo of the Enno Annotator (First prototype!)
 ")
+Another demo: https://youtu.be/tDAIttzuxE8
 
 ## Usage
 
