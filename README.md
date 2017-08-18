@@ -1,6 +1,11 @@
 # Enno Text Annotator
 A web-based visual text annotation tool, which hopefully is less painful to use...
 
+Demo video of the first usable prototype (18.08.2017, 64a9ad5)
+
+[![Demo](http://img.youtube.com/vi/tDAIttzuxE8/0.jpg)](http://www.youtube.com/watch?v=tDAIttzuxE8 "Demo of the Enno Annotator (First prototype!)
+")
+
 ## Usage
 
 ### Installation
