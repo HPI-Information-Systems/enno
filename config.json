@@ -29,8 +29,10 @@
           "Body/Outro/Name",
           "Body/Attachments",
           "Body/Attachments/Attachment",
+          "Body/PS",
           "Body/Signature",
           "Body/Signature/Name",
+          "Body/Signature/Position",
           "Body/Signature/Mail",
           "Body/Signature/Phone",
           "Body/Signature/Fax",
@@ -48,6 +50,11 @@
               "Header/Person/From",
               "Header/Person/Cc",
               "Header/Person/Bcc",
+              "Header/Org",
+              "Header/Org/From",
+              "Header/Org/To",
+              "Header/Org/Cc",
+              "Header/Org/Bcc",
               "Body/Intro/Name",
               "Body/Outro/Name",
               "Body/Signature/Name"
@@ -59,6 +66,11 @@
               "Header/Person/From",
               "Header/Person/Cc",
               "Header/Person/Bcc",
+              "Header/Org",
+              "Header/Org/From",
+              "Header/Org/To",
+              "Header/Org/Cc",
+              "Header/Org/Bcc",
               "Body/Intro/Name",
               "Body/Outro/Name",
               "Body/Signature/Name"
@@ -70,11 +82,13 @@
               "Body/Signature/Mail",
               "Body/Signature/Phone",
               "Body/Signature/Fax",
-              "Body/Signature/Address"
+              "Body/Signature/Address",
+              "Body/Signature/Position"
             ],
             "to": [
               "Body/Signature/Organisation",
-              "Body/Signature/Name"
+              "Body/Signature/Name",
+              "Body/Outro/Name"
             ]
           },
           "WorksFor": {
@@ -83,7 +97,79 @@
               "Body/Signature/Organisation"
             ],
             "from": [
-              "Body/Signature/Name"
+              "Body/Signature/Name",
+              "Body/Outro/Name"
+            ]
+          },
+          "BelongsTo": {
+            "type": "directed",
+            "from": [
+              "Header",
+              "Header/Person",
+              "Header/Person/From",
+              "Header/Person/To",
+              "Header/Person/Cc",
+              "Header/Person/Bcc",
+              "Header/Org",
+              "Header/Org/From",
+              "Header/Org/To",
+              "Header/Org/Cc",
+              "Header/Org/Bcc",
+              "Header/Subject",
+              "Header/Sent",
+              "Header/Sent/Date",
+              "Header/Sent/Time",
+              "Body",
+              "Body/Intro",
+              "Body/Intro/Name",
+              "Body/Outro",
+              "Body/Outro/Name",
+              "Body/Attachments",
+              "Body/Attachments/Attachment",
+              "Body/Signature",
+              "Body/Signature/Name",
+              "Body/Signature/Mail",
+              "Body/Signature/Phone",
+              "Body/Signature/Fax",
+              "Body/Signature/Organisation",
+              "Body/Signature/Address",
+              "Body/Signature/Disclaimer",
+              "Body/Signature/Position",
+              "Body/PS"
+            ],
+            "to": [
+              "Header",
+              "Header/Person",
+              "Header/Person/From",
+              "Header/Person/To",
+              "Header/Person/Cc",
+              "Header/Person/Bcc",
+              "Header/Org",
+              "Header/Org/From",
+              "Header/Org/To",
+              "Header/Org/Cc",
+              "Header/Org/Bcc",
+              "Header/Subject",
+              "Header/Sent",
+              "Header/Sent/Date",
+              "Header/Sent/Time",
+              "Body",
+              "Body/Intro",
+              "Body/Intro/Name",
+              "Body/Outro",
+              "Body/Outro/Name",
+              "Body/Attachments",
+              "Body/Attachments/Attachment",
+              "Body/Signature",
+              "Body/Signature/Name",
+              "Body/Signature/Mail",
+              "Body/Signature/Phone",
+              "Body/Signature/Fax",
+              "Body/Signature/Organisation",
+              "Body/Signature/Address",
+              "Body/Signature/Disclaimer",
+              "Body/Signature/Position",
+              "Body/PS"
             ]
           }
         }
