@@ -4,7 +4,8 @@ from flask import Blueprint, Response, request
 from enno import config
 
 adapters = {
-    'enron': __import__('enno.wrappers.enron', fromlist=['enron'])
+    'enron': __import__('enno.wrappers.enron', fromlist=['enron']),
+    'text': __import__('enno.wrappers.text', fromlist=['text'])
 }
 
 wrappers = Blueprint('wrappers', __name__)

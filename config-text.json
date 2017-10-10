@@ -1,6 +1,6 @@
 {
   "datasources": {
-    "enron": {
+    "asf": {
       "wrapper": "text",
       "options": {
         "path": "data/asf/",

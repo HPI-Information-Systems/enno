@@ -3,7 +3,7 @@ import json
 import argparse
 
 parser = argparse.ArgumentParser(description='Enno - Your friendly Text Annotator')
-parser.add_argument('config', nargs='?', default='config-enron.json')
+parser.add_argument('config', nargs='?', default='config-text.json')
 parser.add_argument('--config', dest='config', default=None)
 args = parser.parse_args()
 

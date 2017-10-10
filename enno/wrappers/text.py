@@ -27,7 +27,7 @@ def get_listing(options):
             tmp = tmp['folders'][pp]
 
         for ff in f:
-            if ff.endswith('.txt'):
+            if ff.endswith(''):
                 sample = {
                     'name': ff,
                     'has_annotation': __has_annotation(os.path.join(options['path'], p, ff)),
@@ -64,9 +64,14 @@ def get_sample(sample, options):
 
 def get_last_sample_id(options):
     path = os.path.join(options['path'], '.last')
-    f = open(path, 'r')
-    sample = f.read()
-    f.close()
+    sample = ''
+    if os.path.isfile(path):
+        f = open(path, 'r')
+        sample = f.read()
+        f.close()
+    else:
+        return get_listing(options)['flat'][0]['sample']
+    
     if os.path.isfile(os.path.join(options['path'], sample)):
         return sample
     return get_listing(options)['flat'][0]
