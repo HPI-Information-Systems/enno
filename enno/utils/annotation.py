@@ -176,7 +176,7 @@ class Annotation:
 
     @staticmethod
     def from_file(path):
-        f = open(path, 'r')
+        f = open(path, 'r',encoding="utf-8")
         obj = json.loads(f.read())
         f.close()
         return Annotation.from_json(obj)
