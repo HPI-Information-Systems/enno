@@ -49,7 +49,7 @@ def get_sample(sample, options):
             anno.id = sample
         return anno
 
-    f = open(path, 'r')
+    f = open(path, 'r', encoding="utf-8")
     text = f.read()
     f.close()
 
@@ -66,11 +66,11 @@ def get_last_sample_id(options):
     path = os.path.join(options['path'], '.last')
     sample = ''
     if os.path.isfile(path):
-        f = open(path, 'r')
+        f = open(path, 'r', encoding="utf-8")
         sample = f.read()
         f.close()
     else:
-        return get_listing(options)['flat'][0]['sample']
+        return get_listing(options)['flat'][5]['sample'] #ugly
     
     if os.path.isfile(os.path.join(options['path'], sample)):
         return sample
@@ -85,11 +85,11 @@ def set_last_sample(sample, options):
 def save_sample(sample, payload, options):
     # TODO make this more fancy using the Annotation class
     path = os.path.join(options['path'], sample) + '.ann'
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding="utf-8") as f:
         json.dump(payload, f)
 
 
 def save_annotation(sample, anno, options):
     path = os.path.join(options['path'], sample) + '.ann'
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding="utf-8") as f:
         f.write(str(anno))
