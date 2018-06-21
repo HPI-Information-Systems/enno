@@ -1,0 +1,91 @@
+{
+  "datasources": {
+    "txt": {
+      "wrapper": "text",
+      "options": {
+        "path": "data/example_txt",
+        "defaultDenotationType": null,
+        "defaultRelationType": null,
+        "denotationTypes": [
+          "Type1",
+          "Type2",
+          "Type3"
+        ],
+        "relationTypes": {
+          "Relation1": {
+            "type": "symmetric-transitive",
+            "from": [
+              "Type1",
+              "Type2"
+            ],
+            "to": [
+              "Type3"
+            ]
+          },
+          "Relation2": {
+            "type": "directed",
+            "from": [
+              "Type1"
+            ],
+            "to": [
+              "Type1"
+            ]
+          },
+          "Relation3": {
+            "type": "directed",
+            "to": [
+              "Type3"
+            ],
+            "from": [
+              "Type2"
+            ]
+          }
+        }
+      }
+    },
+    "eml": {
+      "wrapper": "enron",
+      "options": {
+        "path": "data/example_eml/",
+        "defaultDenotationType": null,
+        "defaultRelationType": null,
+        "denotationTypes": [
+          "Type1",
+          "Type2",
+          "Type3"
+        ],
+        "relationTypes": {
+          "Relation1": {
+            "type": "symmetric-transitive",
+            "from": [
+              "Type1",
+              "Type2"
+            ],
+            "to": [
+              "Type3"
+            ]
+          },
+          "Relation2": {
+            "type": "directed",
+            "from": [
+              "Type1"
+            ],
+            "to": [
+              "Type1"
+            ]
+          },
+          "Relation3": {
+            "type": "directed",
+            "to": [
+              "Type3"
+            ],
+            "from": [
+              "Type2"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+

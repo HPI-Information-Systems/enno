@@ -1,9 +1,9 @@
 {
   "datasources": {
-    "asf": {
+    "txt": {
       "wrapper": "text",
       "options": {
-        "path": "data/asf/",
+        "path": "data/txt/",
         "defaultDenotationType": null,
         "defaultRelationType": null,
         "denotationTypes": [

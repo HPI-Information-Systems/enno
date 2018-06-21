@@ -27,11 +27,13 @@ def get_listing(options):
             tmp = tmp['folders'][pp]
 
         for ff in f:
+            if '.last' in ff:
+                continue
             if ff.endswith('.txt'):
                 sample = {
                     'name': ff,
                     'has_annotation': __has_annotation(os.path.join(options['path'], p, ff)),
-                    'sample': p + '/' + ff
+                    'sample': os.path.join(p, ff)
                 }
                 tmp['docs'].append(sample)
                 ret['flat'].append(sample)
