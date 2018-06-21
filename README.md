@@ -91,6 +91,49 @@ For example:
 ```
 The relation type `Relation1` is a `symmetric-transitive` link between denotations of type `Type1` or `Type2` and `Type3`. You can also set the type to `directed` for directed links.
 
+### Annotation files
+Once you annotate something in the frontend, the existing wrappers automatically saves the file next to the original with the extension `.ann`.
+This reflects the internal format of annotations (see `Annotation` in `utils/annotation.py`).
+The format is the following:
+```
+{
+  "wrapper": "plaintext",
+  "text": "Lorem ipsum dolor sit amet, ...",
+  "denotations": [...],
+  "relations": [...],
+  "meta": {},
+  "id": "text_1.txt"
+}
+```
+It is almost self-explanatory. It specifies the wrapper used, the id (in the existing wrappers, that is the relative path to the datasource path), a full copy of the entire text, some meta-data (the email (enron) wrapper stores the email meta-data here, and relations and denotations.
+
+Each denotation is a labelled character sequence with `start` and `end` position, so you can find it again within the `text`, a copy of the text, the denotation `type` (as specified in the config), an `ID` (current wrapper just use an incremental count), and `meta`data (current wrappers don't use it).
+```
+{
+  "id": 1,
+  "start": 150,
+  "end": 165,
+  "text": "Fusce ultricies",
+  "type": "Type2",
+  "meta": null
+},
+```
+
+Each relation is a link between two denotations.
+It also has an `ID` and `meta`data and a `type` as specified in the config. Also there is an `origin` and `target`, which referrs to the IDs of denotations. 
+```
+{
+  "id": 1,
+  "origin": 1,
+  "target": 3,
+  "type": "Relation3",
+  "meta": null
+},
+```
+In case you use symmetric relations, you have to take care of that in your downstream application logic. Enno only checks for that during saving and rejects a user interaction that tries to do something, that is not allowed based on the config.
+
+The meta fields may come in handy for future development, e.g. in a wrapper that stores stuff in databases or elsewhere.
+
 ## Future Improvements
 You may find, that Enno is pretty bare bones. 
 That is by intention! Who wants a huge system that does the same thing?
