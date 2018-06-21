@@ -23,7 +23,9 @@ grunt flask
 ### Running the example
 To get an idea how this thing works, there is an example setup. The data for the example can be found in `data/example_eml` for a showcase on how Enno deals with email files and `data/example_txt` for simple txt files. The configuration file is `config-example.json`.
 
-The two folders in data are referred to as "datasets". Within the config, you can setup multiple datasets ("datasources"). The name you use there has to be set in `enno/static/enno.html` (yes, not very elegant, but maybe dataset selection would be a nice pullrequest?).
+The two folders in data are referred to as "datasets". Within the config, you can setup multiple datasets ("datasources"). The name you use there has to be set in `enno/static/enno.html`.
+
+Yes, not very elegant, but maybe dataset selection would be a nice pullrequest? Note, that after building with grunt, this is overridden. For permanent change, edit `enno/src/enno.html`.
 
 Replace `<DATASOURCE>` with one of those in your config (the example offers `txt` and `eml` (see section below).
 
