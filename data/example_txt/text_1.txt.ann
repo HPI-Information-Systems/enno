@@ -1,0 +1,87 @@
+{
+  "wrapper": "plaintext",
+  "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nSed ornare dignissim feugiat. Vivamus vitae sem eu risus venenatis \npharetra non sed velit. Fusce ultricies quam et rhoncus condimentum. \nIn odio ligula, pretium eu accumsan sed, consectetur ultrices nunc. \nAliquam erat volutpat. Lorem ipsum dolor sit amet, consectetur adipiscing \nelit. Phasellus ut tristique leo. Phasellus porta orci nulla, at molestie \nmauris suscipit id. Vivamus convallis rhoncus sem ut faucibus. Vivamus\n mollis augue quis ante viverra interdum. Sed id efficitur metus, \n posuere hendrerit arcu. Morbi eu auctor ex.\n\nPraesent consequat, dui vitae aliquet semper, nisl risus sollicitudin dui, \nnon ornare purus augue eu felis. Cras maximus elit id hendrerit dictum. \nCras congue feugiat libero, nec blandit ante. Nullam magna dolor, gravida \na nulla vitae, gravida hendrerit justo. Ut vel egestas tortor, nec finibus \npurus. Proin bibendum, odio vel aliquam malesuada, ipsum mauris ultrices lorem,\n vel tristique lectus dolor non nisl. Aliquam at justo ac nisi mollis ornare\n  ut non neque. Sed nec placerat nisl, eu tincidunt enim. Nulla nec \n  lorem vitae nibh fringilla ultrices eu eget mi. Nam quis mollis urna.\n\nQuisque in ligula non sapien tincidunt lobortis quis accumsan neque. \nMorbi sed lacus malesuada, consequat mauris non, tristique augue. \nNam ac elit sit amet velit tempus malesuada. Donec semper at sem nec \nporta. Nam non lectus in justo porttitor placerat nec consequat diam. \nDonec luctus libero nulla, a imperdiet tortor laoreet in. Etiam pharetra \nultrices est, ac euismod risus aliquam in. Integer at justo non nibh\n malesuada pretium. Nulla accumsan neque sed fermentum rutrum. Aliquam finibus tortor felis, quis vestibulum tellus congue sit amet. Aenean \n malesuada, diam sit amet rhoncus gravida, turpis leo pulvinar \n felis, eget rhoncus tellus nisi ut ex. Maecenas a pretium tellus. \n Proin ac mi eu velit accumsan convallis. Cras a egestas libero. \n Cras massa magna, egestas vitae ipsum non, semper gravida nulla.\n Vivamus ultricies ipsum sit amet est luctus, ut ultrices augue cursus.\n",
+  "denotations": [
+    {
+      "id": 1,
+      "start": 150,
+      "end": 165,
+      "text": "Fusce ultricies",
+      "type": "Type2",
+      "meta": null
+    },
+    {
+      "id": 2,
+      "start": 236,
+      "end": 257,
+      "text": " consectetur ultrices",
+      "type": "Type2",
+      "meta": null
+    },
+    {
+      "id": 3,
+      "start": 288,
+      "end": 314,
+      "text": "Lorem ipsum dolor sit amet",
+      "type": "Type3",
+      "meta": null
+    },
+    {
+      "id": 4,
+      "start": 174,
+      "end": 193,
+      "text": "rhoncus condimentum",
+      "type": "Type1",
+      "meta": null
+    },
+    {
+      "id": 5,
+      "start": 102,
+      "end": 114,
+      "text": "sem eu risus",
+      "type": "Type1",
+      "meta": null
+    },
+    {
+      "id": 6,
+      "start": 510,
+      "end": 517,
+      "text": "viverra",
+      "type": "Type1",
+      "meta": null
+    },
+    {
+      "id": 7,
+      "start": 528,
+      "end": 531,
+      "text": "Sed",
+      "type": "Type3",
+      "meta": null
+    }
+  ],
+  "relations": [
+    {
+      "id": 1,
+      "origin": 1,
+      "target": 3,
+      "type": "Relation3",
+      "meta": null
+    },
+    {
+      "id": 2,
+      "origin": 5,
+      "target": 4,
+      "type": "Relation2",
+      "meta": null
+    },
+    {
+      "id": 3,
+      "origin": 6,
+      "target": 7,
+      "type": "Relation1",
+      "meta": null
+    }
+  ],
+  "meta": {},
+  "id": "text_1.txt"
+}
