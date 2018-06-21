@@ -5,6 +5,7 @@ Demo video of the first usable prototype (18.08.2017, 64a9ad5)
 
 [![Demo 1](http://img.youtube.com/vi/17WjPtzdwnw/0.jpg)](http://www.youtube.com/watch?v=17WjPtzdwnw "Demo of the Enno Annotator (First prototype!)
 ")
+
 Another demo: https://youtu.be/tDAIttzuxE8
 
 ## Usage
@@ -15,7 +16,7 @@ pip install Flask, email
 npm install
 grunt dist
 # or for dev (no minified js)
-# grunt dev
+#grunt dev
 grunt flask
 ```
 
@@ -23,6 +24,8 @@ grunt flask
 To get an idea how this thing works, there is an example setup. The data for the example can be found in `data/example_eml` for a showcase on how Enno deals with email files and `data/example_txt` for simple txt files. The configuration file is `config-example.json`.
 
 The two folders in data are referred to as "datasets". Within the config, you can setup multiple datasets ("datasources"). The name you use there has to be set in `enno/static/enno.html` (yes, not very elegant, but maybe dataset selection would be a nice pullrequest?).
+
+Replace `<DATASOURCE>` with one of those in your config (the example offers `txt` and `eml` (see section below).
 
 ```js
 enno.selectSource('<DATASOURCE>').then(function (d) {
@@ -68,7 +71,7 @@ Here you see, that there are two datasets, `txt` and `eml`. Each dataset specifi
 
 Under `options` you set the path relative to the working directory you start the server in. Ignore `defaultDenotationType` and `defaultRelationType`, that is for future features (maybe). 
 
-Then there are `denotationTypes` and `relationTypes`.
+Then there are `denotationTypes` (list of str) and `relationTypes` (dict of dicts).
 Denotation types is the list of types you want to label selected character sequences with. Relation types are what you can link denotations with.
 
 For example:
