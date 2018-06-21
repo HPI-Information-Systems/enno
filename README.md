@@ -35,6 +35,9 @@ Start the backend:
 python run.py config-example.json
 ```
 
+Now go to your favourite browser and open http://localhost:5000/static/enno.html
+When something doesn't work, use Chrome (Enno is tested with that...)
+
 ### Config File
 Please read the previous section first.
 
