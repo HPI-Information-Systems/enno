@@ -1,7 +1,5 @@
 import os
 import json
-import sys
-from email import parser as ep
 from enno.utils.annotation import Annotation
 
 
@@ -19,7 +17,7 @@ def get_listing(options):
     for p, d, f in os.walk(path):
         tmp = ret
         p = p[len(path):]
-        for pp in p.split('/'):
+        for pp in p.split(os.sep):
             if len(pp) == 0:
                 continue
             if pp not in tmp['folders']:
@@ -27,7 +25,7 @@ def get_listing(options):
             tmp = tmp['folders'][pp]
 
         for ff in f:
-            if '.last' in ff:
+            if '.last' in ff or ff.endswith('.ann'):
                 continue
             if ff.endswith(''):
                 sample = {

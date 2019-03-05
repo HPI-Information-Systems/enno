@@ -40,9 +40,15 @@ def list_samples(source):
 
 @wrappers.route('/last-sample/<source>')
 def get_last_sample(source):
-    opts = get_conf(source)
-    sample = adapters[opts['wrapper']].get_last_sample_id(opts['options'])
-    return get_sample(source, sample)
+    try:
+        opts = get_conf(source)
+        sample = adapters[opts['wrapper']].get_last_sample_id(opts['options'])
+        return get_sample(source, sample)
+    except IndexError as e:
+        return json_response({'status': 404,
+                              'message':
+                                  f'Please check config, data folder seems empty!\n'
+                                  f'{type(e)}: {e}'}, status=404)
 
 
 @wrappers.route('/sample/<source>/<path:sample>')
@@ -55,7 +61,7 @@ def get_sample(source, sample):
         return ret
     except:
         e = sys.exc_info()
-        return json_response({'status': 404, 'message': str(e[0]) + ': ' + str(e[1])}, status=404)
+        return json_response({'status': 404, 'message': f'{e[0]}: {e[1]}'}, status=404)
 
 
 @wrappers.route('/save/<source>/<path:sample>', methods=['POST'])
